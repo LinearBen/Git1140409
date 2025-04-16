@@ -1,16 +1,72 @@
 <!DOCTYPE html>
 <html lang="zh-Hant">
 <head>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta charset="UTF-8">
     <title>網站目錄</title>
+    <style>
+        body{
+            background-color: #a9cce3;
+            display: flex;
+            justify-self: center;
+            align-items: center;
+            /* min-height: 100vh; */
+            margin: 0;
+        }
+        .header{
+            background-color: #7fb3d5;
+            border-radius: 5px;
+            padding: 10px;
+            /* width: 90%; */
+        }
+        .headline{
+            font-size: 52px; font-weight:bold;
+            margin: 15px;text-align:center;
+
+            
+        }
+        .list{
+            display: flex;
+            justify-content:center;
+            
+        }
+        .product{
+            flex:none;width:280px;margin:10px;
+            background-color:#ebf5fb;
+            text-align: center;
+            font-size: 30px;
+            border-radius: 5px;
+        }
+        @media (max-width:1250px){
+            /* 螢幕寬度小於1250px, 套用這個區塊的 CSS */
+            .list{
+                flex-wrap:wrap;
+            }
+            .product{
+                width:45%;
+
+            }
+        }
+        @media (max-width:500px){
+            /* 螢幕寬度小於500px, 套用這個區塊的 CSS */
+            .headline{
+                font-size: 40px;
+            }
+            .product{
+                width:90%;
+            }
+        }  
+    </style>
 </head>
 <body>
-    <h1>網站目錄</h1>
-    <ul>
-        <li><a href="html\datatype.html">自我簡介</a></li>
-        <li><a href="TESTTALK.html">聊天室</a></li>
-        <li><a href="TEST1140412.html">小遊戲1</a></li>
-        <li><a href="TESTVIDEO.html">看影片</a></li>
-    </ul>
+    <div class="header">
+        <div class="headline">網站目錄</div>
+        <div class="list">
+            <div class="product"><a href="html\datatype.html">自我簡介</a></div>
+            <div class="product"><a href="TESTTALK.html">聊天室</a></div>
+            <div class="product"><a href="TEST1140412.html">小遊戲1</a></div>
+            <div class="product"><a href="TESTVIDEO.html">看影片</a></div>
+        </div>
+    </div>
 </body>
 </html>

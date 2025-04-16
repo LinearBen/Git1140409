@@ -7,22 +7,40 @@
     <style>
         body {
             font-family: Arial, sans-serif;
+            margin: 0; /* 移除 body 預設的 margin */
         }
+
+        .home-link {
+            display: block; /* 讓連結獨佔一行 */
+            margin: 15px; /* 在連結周圍增加一些空間 */
+        }
+
+        .Video {
+            display: flex; /* 使用 Flexbox 排版 */
+            justify-content: center; /* 水平置中容器內的項目 (iframe) */
+            flex-wrap: wrap; /* 在螢幕空間不足時允許換行 */
+            gap: 20px; /* 在影片之間增加間距 */
+            margin-top: 30px; /* 在影片容器上方增加空間，與連結分隔 */
+            padding: 0 10px; /* 在容器左右增加一點內距 */
+        }
+
         iframe {
-            width: 40%;
+            /* 移除固定的寬度，讓 Flexbox 控制 */
+            /* width: 560px; */
             height: 315px;
             border: none;
-            margin-top: 50px;
-            margin-left: 30%;
-            margin-right: 30%;
-            font-family: Arial, sans-serif;
-            text-align: center;
+            max-width: 560px; /* 設定最大寬度 */
+            flex-grow: 1; /* 允許 iframe 在有空間時伸展 */
+            flex-basis: 400px; /* 設定基礎寬度，小於此寬度會嘗試換行 */
         }
-    
+
     </style>
 </head>
 <body>
-    <a href="index.html">回首頁</a>
+    <a href="index.html" class="home-link">回首頁</a>
     <br/>
-    <iframe width="560" height="315" src="https://www.youtube.com/embed/WApDytOlJZw?si=Rd-J5oiQSHl2uyOC" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
-</body>
+    <div class="Video">
+        <iframe width="560" height="315" src="https://www.youtube.com/embed/WApDytOlJZw?si=Rd-J5oiQSHl2uyOC" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
+        <iframe width="560" height="315" src="https://www.youtube.com/embed/7VFTcmGRM-k?si=oPKvfvvQkMtippAX&amp;controls=0" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
+    </div>
+    </body>
