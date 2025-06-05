@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>簡單簡單</title>
+        <link rel="stylesheet" type="text/css" href="css/demoInsert.css"/>
+    </head>
+    <body>
+        <button class="tab-btn" onclick="showBox('purchase')">新增訂單</button>
+        <div class="hide" id="purchase">
+            <h2>客戶新增表單</h2>
+            <label for="license">車牌號碼：</label>
+            <input type="text" id="license" name="license" placeholder="請輸入車牌號碼">
+            <br>
+            <label for="ticket">選購所需的票：</label>
+            <div id = "showticket" ></div>
+            <button onclick="insertpost()">送出</button>
+            <div id="tableContainer1">載入中…</div>
+        </div>
+        <br>
+        
+         
+        
+            <script>
+                // API連結
+                const apiUrlProducts = 'http://localhost:8000/api/products';
+                const apiUrlInsert = 'http://localhost:8000/api/insert';
+                const apiUrlPurchase = 'http://localhost:8000/api/purchaserecord';
+                const container1 = document.getElementById('tableContainer1');
+                // 顯示票種
+                const mymessage = document.getElementById("showticket");
+                showticket();
+                async function showticket(){
+                    try{
+                        const resp = await fetch(apiUrlProducts); //GET
+                        if (!resp.ok) throw new Error('HTTP 錯誤:'+resp.status);
+                        const data =  await resp.json();
+                        console.log(data);
+                        if (!data||data.length===0) {
+                            mymessage.textContent = '未取得任何資料';
+                            return;
+                        }
+                        mymessage.innerHTML = '';
+                        let tickets = "";
+                        data.forEach(element => {
+                            const {TicketID,TicketName} = element;
+                            tickets += `<li>${TicketName}<input type="number" min="0" class="ticket" id=${TicketID} name="ticket" placeholder="0" />張</li>`
+                        });
+                        mymessage.innerHTML = tickets;
+                    }catch(error){
+                        mymessage.textContent = '載入失敗：' + error.message;
+                    }
+                }
+
+                // 新增訂單
+                async function insertpost(){
+                    const ticketInput = Array.from(document.querySelectorAll('input[name="ticket"]')); //取得所有input，但他是NodeList
+                    let license = document.getElementById("license").value.trim();
+                    let count = 0; //計算所有票種的數量（判斷用）
+                    if(!license){
+                        alert("請輸入車牌號碼");
+                        return;
+                    }else{
+                        for(let input of ticketInput){
+                            let ticketID = input.id;
+                            const quantityValue = input.value.trim(); // 先 trim
+                            const quantity = parseInt(quantityValue, 10); // 轉換為數字
+                            console.log(ticketID,quantity);
+                            count += parseInt(quantity);
+                            if (isNaN(quantity) || quantity <= 0) { // 如果不是有效數字或數量小於等於0，則跳過
+                            continue;
+                            }
+                            fetch(apiUrlInsert,{
+                            method:'POST',
+                            mode:'cors',
+                                body:JSON.stringify({
+                                    table:"purchase",
+                                    license:license,
+                                    ticket:ticketID,
+                                    quantity:quantity
+                                })
+                            })
+                            if(count===0){
+                                alert("請選擇至少一個票種")
+                                return;
+                            }
+                        }      
+                    }
+                    await loadPurchaseRecord();
+                    Array.from(document.getElementsByTagName("input")).forEach(input => {
+                        input.value = "";
+                    });
+                    return;
+                }
+                
+                // 展開收合
+                function showBox(id){
+                    let box = document.getElementById(id);
+                    let hide = document.getElementsByClassName('hide');
+                    return (box.classList.contains('hide') ) 
+                        ? box.classList.remove('hide') : box.classList.add('hide');
+                    
+                }
+
+                // 金額格式化
+                Array.from(document.getElementsByClassName("money")).forEach(input => {
+                    input.addEventListener('input', function (e)  {
+                        let value = e.target.value;
+                        if(value.includes('.')){
+                            let [integer,decimal] = value.split('.');
+                            if(decimal.length>2){
+                                decimal = decimal.slice(0,2);
+                                e.target.value = integer+'.'+decimal;
+                            }
+                            e.target.value = integer+'.'+decimal;
+                        } 
+                    });
+                });
+
+                // 購買紀錄表
+                loadPurchaseRecord()
+                async function loadPurchaseRecord() {
+                try {
+                    const resp = await fetch(apiUrlPurchase);
+                    if (!resp.ok) throw new Error(`HTTP 錯誤: ${resp.status}`);
+                    const data = await resp.json();
+                    if (!Array.isArray(data) || data.length === 0) {
+                    container1.textContent = '沒有資料';
+                    return;
+                    }
+                    // 產生表格
+                    let table = '<table><thead><tr>';
+                    // 自動產出表頭
+                    const keys = Object.keys(data[0]);
+                    keys.forEach(k => {
+                    table += `<th>${k}</th>`;
+                    });
+                    table += '</tr></thead><tbody>';
+                    // 每一列資料
+                    data.forEach(row => {
+                    table += '<tr>';
+                    keys.forEach(k => {
+                        table += `<td>${row[k]}</td>`;
+                    });
+                    table += '</tr>';
+                    });
+                    table += '</tbody></table>';
+                    container1.innerHTML = table;
+                } catch (err) {
+                    container1.textContent = '載入失敗：' + err.message;
+                }
+            }
+                
+
+            </script>
+    </body>
+</html>

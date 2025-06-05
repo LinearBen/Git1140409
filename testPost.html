@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>看影片</title>
+    
+</head>
+<body>
+    <div id="getText"></div>
+    <script>
+        fetch(`http://localhost:8000/postdemo`, {
+        method: 'POST',
+        mode: 'cors', // ✅ 很關鍵
+        body: 'Hello'
+      })
+
+    async function loadGet(url, todiv) {
+        try {
+            const resp = await fetch(url);
+            if (!resp.ok) throw new Error(`HTTP 錯誤: ${resp.status}`);
+            const data = await resp.text();
+            if(!data){
+                todiv.textContent = '未取得任何資料';
+            return;
+            }
+            todiv.textContent = data;
+        } catch (err) {
+            todiv.textContent = '載入失敗：' + err.message;
+          }
+      }
+      loadGet(`http://localhost:8000/getdemo`, document.getElementById('getText'))
+
+    </script>
+</body>

@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<!-- 
+  1. 專案目的與程式功能說明:
+  2. 主要流程(情境)
+  3. 主要流程中必要的資料(前端)
+ -->
+<html lang="zh-Hant">
+
+<head>
+  <meta charset="UTF-8" />
+  <title>資料操作</title>
+  <link rel="stylesheet" href="css/demoAPI.css" />
+
+
+</head>
+
+<body>
+  <h1>資料表操作</h1>
+  <div>
+    <button class="tab-btn" onclick="updateTable(apiUrlPurchase, container1)">購買資料</button>
+    <button class="tab-btn" onclick="updateTable(apiUrlProducts, container1)">產品資料</button>
+    <button class="tab-btn" onclick="updateTable(apiUrlMaintenancerecord, container1)">設備維護紀錄</button>
+    <button class="tab-btn" onclick="updateTable(apiUrlDeviveRecord, container1)">設備購買紀錄</button>
+    <button class="tab-btn" onclick="updateTable(apiUrlVendorRecord, container1)">維護人員名單</button>
+
+  </div>
+  <div>
+    <div id="tableContainer1">載入中…</div>
+  </div>
+
+
+  <script>
+    const container1 = document.getElementById('tableContainer1');
+    const apiUrlProducts = 'http://localhost:8000/api/products';
+    const apiUrlPurchase = 'http://localhost:8000/api/purchaserecord';
+    const apiUrlMaintenancerecord = 'http://localhost:8000/api/maintenancerecord'
+    const apiUrlDeviveRecord = 'http://localhost:8000/api/devicerecord'
+    const apiUrlVendorRecord = 'http://localhost:8000/api/vendorRecord'
+
+
+    let currentUrl = '';
+    let currentTodiv;
+
+    async function updateTable(url, todiv) {
+      currentUrl = url;
+      currentTodiv = todiv;
+      let tablename = '';
+      switch (url) {
+        case apiUrlProducts:
+          tablename = 'products';
+          break;
+        case apiUrlPurchase:
+          tablename = 'purchase';
+          break;
+        case apiUrlMaintenancerecord:
+          tablename = 'maintenancerecord';
+          break;
+        case apiUrlDeviveRecord:
+          tablename = 'devicerecord';
+          break;
+        case apiUrlVendorRecord:
+          tablename = 'vendor';
+          break;
+      }
+      try {
+        const resp = await fetch(url);
+        if (!resp.ok) throw new Error(`HTTP 錯誤: ${resp.status}`);
+        const data = await resp.json();
+        // console.log(data);
+        if (!Array.isArray(data) || data.length === 0) {
+          todiv.textContent = '沒有資料';
+          return;
+        }
+        // 產生表格
+
+        let table = '<table><thead><tr>';
+        table += '<th>操作</th>';
+        // 自動產出表頭
+        const keys = Object.keys(data[0]);
+        // console.log(keys);
+        keys.forEach(k => {
+          if (k != 'state') {
+            table += `<th>${k}</th>`;
+          }
+        });
+        table += '</tr></thead><tbody>';
+        // 每一列資料
+        data.forEach(row => {
+          const x = JSON.stringify({ ...row, state: -1, table: tablename });
+          // console.log(x);
+          table += '<tr>';
+          table += `<td><button onclick='updaterow(${x})'>刪除</button></td>`;
+
+          keys.forEach(k => {
+
+            if (k != 'state') {
+              table += `<td>${row[k]}</td>`;
+              // console.log(row[k]);
+            }
+
+          });
+
+          table += '</tr>';
+        });
+        table += '</tbody></table>';
+        todiv.innerHTML = table;
+      } catch (err) {
+        todiv.textContent = '載入失敗：' + err.message;
+      }
+    }
+    function updaterow(returnbody) {
+      console.log(returnbody)
+      fetch('http://localhost:8000/api/update', {
+        method: 'POST',
+        mode: 'cors', // ✅ 很關鍵
+        body: JSON.stringify(returnbody),
+      })
+
+      updateTable(currentUrl, currentTodiv);
+    }
+  </script>
+</body>
+
+</html>

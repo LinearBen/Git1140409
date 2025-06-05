@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+  <head>
+    <meta charset="UTF-8" />
+    <title>臺灣各縣市鄉鎮未來1週逐12小時天氣預報</title>
+    <style>
+      /* Optional: Add some basic styling */
+      body {
+        font-family: sans-serif;
+        line-height: 1.6;
+      }
+      .container {
+        max-width: 800px;
+        margin: 20px auto;
+        padding: 15px;
+        border: 1px solid #ccc;
+        border-radius: 5px;
+      }
+      .weather-item {
+        border-bottom: 1px dashed #eee;
+        padding-bottom: 10px;
+        margin-bottom: 10px;
+      }
+      .weather-item:last-child {
+        border-bottom: none;
+        margin-bottom: 0;
+      }
+      h1 {
+        text-align: center;
+        color: #333;
+      }
+      h3 {
+        margin-bottom: 5px;
+        color: #0056b3;
+      }
+      p {
+        margin-top: 0;
+        margin-bottom: 5px;
+        font-size: 0.9em;
+        color: #555;
+      }
+      #weatherList {
+          margin-top: 20px;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <h1>臺灣各縣市鄉鎮未來1週逐12小時天氣預報</h1>
+      <div id="weatherList">載入中…</div>
+    </div>
+
+    <script>
+      const apiUrl = 'https://opendata.cwa.gov.tw/api/v1/rest/datastore/F-D0047-091?Authorization=CWA-E273EAD9-A19A-4922-BEE9-618A19A10427&limit=10&format=JSON&LocationName=&ElementName=%E9%99%8D%E9%9B%A8%E6%A9%9F%E7%8E%87';
+      const weatherList = document.getElementById('weatherList');
+
+      async function loadWeather() {
+        weatherList.textContent = '正在從氣象署載入資料...'; // Update loading message
+        try {
+          const resp = await fetch(apiUrl);
+          if (!resp.ok) {
+            // Provide more specific error for HTTP issues
+            throw new Error(`無法取得資料，HTTP 狀態碼：${resp.status}`);
+          }
+          const data = await resp.json();
+          console.log("API Response Data:", data); // Log data for debugging
+
+          // --- Data Validation and Parsing ---
+          if (!data || data.success !== 'true' || !data.records || !data.records.Locations || !data.records.Locations.length) {
+            // Check the expected structure more thoroughly
+            weatherList.textContent = '無法解析天氣資料或資料格式不符預期。';
+            console.error("Invalid or unexpected data structure:", data);
+            return;
+          }
+
+          // Get the array of locations from the first 'Locations' entry
+          const locationsData = data.records.Locations[0];
+          const locationsArray = locationsData.Location;
+
+          if (!locationsArray || locationsArray.length === 0) {
+            weatherList.textContent = '在此資料集中找不到任何地點的預報資訊。';
+            return;
+          }
+
+          // Clear the loading message
+          weatherList.innerHTML = '';
+
+          // --- Display Weather Info ---
+          locationsArray.forEach(location => {
+            const item = document.createElement('div');
+            item.className = 'weather-item'; // Add class for styling
+
+            const area = document.createElement('h3');
+            // Correctly access the LocationName property of each location object
+            area.textContent = location.LocationName;
+            item.appendChild(area);
+
+            // Find the '降雨機率' element data
+            const rainProbElement = location.WeatherElement.find(el => el.ElementName === '降雨機率');
+
+            if (rainProbElement && rainProbElement.Time && rainProbElement.Time.length > 0) {
+              // Display info for the first time period as an example
+              const firstTimePeriod = rainProbElement.Time[0];
+              const rainProbValue = firstTimePeriod.ElementValue[0].Value;
+              const measures = firstTimePeriod.ElementValue[0].Measures;
+              const startTime = firstTimePeriod.StartTime;
+              const endTime = firstTimePeriod.EndTime;
+
+              const probInfo = document.createElement('p');
+              probInfo.textContent = `時間：${startTime} 至 ${endTime}`;
+              item.appendChild(probInfo);
+
+              const probValue = document.createElement('p');
+              probValue.textContent = `降雨機率：${rainProbValue} ${measures}`;
+              item.appendChild(probValue);
+
+            } else {
+              const noDataInfo = document.createElement('p');
+              noDataInfo.textContent = '此地點無降雨機率資料。';
+              item.appendChild(noDataInfo);
+            }
+
+            weatherList.appendChild(item);
+          });
+
+        } catch (err) {
+          console.error("載入天氣資料時發生錯誤:", err); // Log the full error for debugging
+          // Display a user-friendly error message
+          weatherList.textContent = '載入失敗：' + err.message;
+        }
+      }
+
+      loadWeather();
+    </script>
+  </body>
+</html>

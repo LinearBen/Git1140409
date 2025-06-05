@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<!-- 
+  1. 專案目的與程式功能說明:
+  2. 主要流程(情境)
+  3. 主要流程中必要的資料(前端)
+ -->
+<html lang="zh-Hant">
+  <head>
+    <meta charset="UTF-8" />
+    <title>資料表查詢展示</title>
+    <link rel="stylesheet" href="css/demoAPI.css" />
+    <script type="text/javascript"  charset="UTF-8" src="script/loadTable.js" defer></script>
+    
+  </head>
+  <body>
+    <h1>資料表切換展示</h1>
+  <div>
+    <button class="tab-btn" onclick="loadTable(apiUrlPurchase, container1)">購買資料</button>
+    <button class="tab-btn" onclick="loadTable(apiUrlProducts, container1)">產品資料</button>
+    <button class="tab-btn" onclick="loadTable(apiUrlPass, container1)">通行資料</button>
+    <button class="tab-btn" onclick="loadTable(apiUrlMaintenancerecord, container1)">設備維護紀錄</button>
+    <button class="tab-btn" onclick="loadTable(apiUrlDeviveRecord, container1)">設備購買紀錄</button>
+    <button class="tab-btn" onclick="loadTable(apiUrltickets_total, container1)">產品銷售總額</button>
+    <button class="tab-btn" onclick="loadTable(apiUrlVendorRecord, container1)">維護人員名單</button>
+
+  </div>
+  <div>
+    <div id="tableContainer1">載入中…</div>
+  </div>
+    <div class="container">
+      <h1>無序清單展示</h1>
+      <!-- <div id="weatherList">載入中…</div> -->
+      <ul id="mymessage"></ul>      
+      </div>
+    </div>
+
+
+    <script>
+    const container1 = document.getElementById('tableContainer1');
+    loadMessage() 
+    async function loadMessage() {
+      const apiUrlProducts = 'http://localhost:8000/api/products/';
+
+    try {
+        const resp = await fetch(apiUrlProducts); //GET
+        if (!resp.ok) throw new Error('HTTP 錯誤:' + resp.status);
+        const data = await resp.json();
+        console.log(data);
+        if (!data) {
+            weatherList.textContent = '未取得任何資料';
+            return;
+        }
+        data.forEach(element => {
+            const { TicketID, TicketName } = element;
+            const item = document.createElement('li');
+            mymessage.appendChild(item);
+            item.textContent = "TicketID：" + TicketID + " " + "TicketName：" + TicketName;
+        });
+
+    } catch (err) {
+        mymessage.textContent = '載入失敗：' + err.message;
+    }
+}
+    </script>
+  </body>
+</html>
+

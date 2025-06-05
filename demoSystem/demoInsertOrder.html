@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+
+
+<head>
+  <meta charset="UTF-8">
+  <title>簡單表單</title>
+  <style>
+    .ticket {
+        display: inline-block;
+        width: 30px;
+        margin-left: 5px;
+    }
+</style>
+</head>
+<body>
+  <h2>新增訂單</h2>
+  <label for="license">車牌號碼：</label>
+  <input type="text" id="license" name="license" placeholder="請輸入車牌號碼">
+  <label for="pname">票種：</label>
+  <select  id="pname">
+    <option value="">請選擇票種</option>
+  </select>
+  <label for="num"> 數量：</label>
+  <input type="number" min="0" class="ticket" id=num placeholder="0" />
+  <button onclick="insertpost()">新增</button>
+  <script>
+    // const apiCustomer = 'http://localhost:8000/api/1/customers';
+    const apiProduct = 'http://localhost:8000/api/products';
+    // const apiShipper = 'http://localhost:8000/api/1/shippers';
+    const pname = document.getElementById("pname");
+    const num = document.getElementById("num");
+    //取得客戶名稱在新增到select id:pname
+    async function pnameAdd() {
+    try {
+        const resp = await fetch(apiProduct);
+        if (!resp.ok) throw new Error(`HTTP 錯誤: ${resp.status}`);
+        const data = await resp.json();
+        if (!Array.isArray(data) || data.length === 0) {
+          container.textContent = '沒有資料';
+          return;
+        }
+        // 每一列資料
+        data.forEach(row => {
+          const {TicketID,TicketName} = row;
+        
+          let op = document.createElement("option");
+          op.value = TicketID;
+          op.textContent = TicketName;
+          pname.append(op)
+        });
+      } catch (err) {
+      }
+    }
+    pnameAdd()
+    
+    
+   
+    function insertpost() {
+      //姓名正確的
+      let pname = document.getElementById("pname").value.trim();
+      let num= parseInt(document.getElementById("num").value.trim());
+      /*
+      if (pname && price) {
+        let returnbody= JSON.stringify({ table:"products", pname: pname,  price: price});
+        console.log(returnbody);
+        //格式檢查
+        fetch('http://localhost:8000/api/2/insert', {
+          method: 'POST',
+          mode: 'cors', // ✅ 很關鍵
+          body: returnbody,
+        })
+        console.log("完成fetch")
+      } else {
+        alert("請輸入資料");
+      }
+        */
+    }
+  </script>
+</body>
+
+
+</html>
+

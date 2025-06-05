@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>新增資料</title>
+        <link rel="stylesheet" type="text/css" href="css/demoInsert.css"/>
+        <script type="text/javascript"  charset="UTF-8" src="script/loadTable.js" defer></script>
+
+    </head>
+    <body>
+        <nav>
+            <button class="tab-btn" onclick="showBox('device')">新增設備</button>
+            <button class="tab-btn" onclick="showBox('vendor')">新增維護人員</button>
+            <button class="tab-btn" onclick="showBox('maintenance')">新增維護紀錄</button>
+            
+        </nav>  
+        <div class="hide" id="device">
+            <h2>設備新增表單</h2>
+            <label for="device">設備名稱：</label>
+            <input type="text" id="deviceName" name="deviceName" placeholder="請輸入設備名稱"/>
+            <br>
+            <label for="purchaseDateTime">購買時間：</label>
+            <input type="date" id="purchaseDate" name="purchaseDate" />
+            <input type="time" id="purchaseTime" name="purchaseTime" />
+            <br>
+            <label for="price">價格：</label>
+            <input class="money" type="number" min="0" step="0.01" id="price" name="price" placeholder="請輸入價格"/>
+            <br>
+            <label for="Maintenance_Interval">維護週期：</label>
+            <input type="number" class="day" id="Maintenance_Interval" name="Maintenance_Interval"/>天
+            <br>
+            <label for="remark">備註：</label>
+            <input type="text" class="remark" id="remark" name="remark" placeholder="請輸入備註"/>
+            <br>
+            
+            
+            <button onclick="insertpost('maintenance')">送出</button>
+            <div id="tableContainer1"></div>
+            <hr/>
+        </div>
+        
+        
+        <div class="hide" id="maintenance">
+            <h2>設備維護登記表單</h2>
+            <label for="dname">維護設備：</label>
+            <select  id="dname">
+                <option value="">--</option>
+            </select>
+            <label for="vname">維護人員：</label>
+            <select  id="vname">
+                <option value="">--</option>
+            </select>
+            <br>
+            <label for="item">維護項目</label>
+            <input type="text" id="item" name="item" placeholder="請輸入維護項目"/>
+            <label for="cost">金額：</label>
+            <input class="money" type="number" min="0" step="0.01" id="cost" name="cost" placeholder="請輸入金額"/>
+            <br>
+            <label for="remark1">備註：</label>
+            <input type="text" class="remark" id="remark1" name="remark1" placeholder="請輸入備註"/>
+            <br>
+            
+            
+            <button onclick="insertpost('maintenance')">送出</button>
+            <div id="tableContainer2"></div>
+            <hr/>
+        </div>
+        <div class="hide" id="vendor">
+            <h2>維護人員新增表單</h2>
+            <label for="vendorName">廠商名稱：</label>
+            <input type="text" id="vendorName" name="vendorName" placeholder="請輸入廠商名稱"/>
+            <label for="maintainer">維護人員：</label>
+            <input type="text" id="maintainer" name="maintainer" placeholder="請輸入維護人員"/>
+            <br>
+            <label for="phone">聯絡電話：</label>
+            <input type="tel" id="phone" name="phone" class="tel" inputmode="numeric" pattern="[0-9]*" maxlength="10" placeholder="例如：0912345678" />
+            <br>
+            <label for="email">電子信箱：</label>
+            <input type="email" id="email" name="email" placeholder="請輸入電子信箱"/>
+            <br>
+            <label for="address">地址：</label>
+            <input type="text" id="address" name="address" placeholder="請輸入地址"/>
+            <br>
+            <label for="service">服務項目：</label>
+            <input type="text" id="service" name="service" placeholder="請輸入服務項目"/>
+            <br>
+            <label for="contractStart">簽約日期：</label>
+            <input type="date" id="contractStart" name="contractStart" />
+            <label for="contractEnd">到期日期：</label>
+            <input type="date" id="contractEnd" name="contractEnd" />
+            <br>
+            <button onclick="insertpost('vendor')">送出</button>
+            <div id="tableContainer3"></div>
+        </div>
+        
+            
+            <script>  
+                const container1 = document.getElementById('tableContainer1');
+                const container2 = document.getElementById('tableContainer2');
+                const container3 = document.getElementById('tableContainer3');
+                
+                // API連結
+                const apiUrlInsert = 'http://localhost:8000/api/insert';
+
+                // 新增設備
+                async function insertpost(target){
+                    switch(target){
+                        case "device": // 新增設備
+                        const deviceName = document.getElementById("deviceName").value.trim();
+                        const date = document.getElementById('purchaseDate').value;
+                        const time = document.getElementById('purchaseTime').value;
+                        const purchaseDateTime = `${date} ${time}`;
+                        const price = document.getElementById("price").value.trim();
+                        const Maintenance_Interval = document.getElementById("Maintenance_Interval").value.trim();
+                        const remark = document.getElementById("remark").value.trim();
+                        
+                        if(!deviceName){
+                            alert("請輸入設備名稱");
+                            return;
+                        }else if(!price){
+                            alert("請輸入價格");
+                            return;
+                        }else if(!Maintenance_Interval){
+                            alert("請輸入維護週期");
+                            return;
+                        }else if(!date||!time){
+                            alert("請輸入購買時間");
+                            return;
+                        }else{
+                            fetch(apiUrlInsert,{
+                                method:'POST',
+                                mode:'cors',
+                                    body:JSON.stringify({
+                                        table:"device",
+                                        deviceName:deviceName,
+                                        purchaseDateTime:purchaseDateTime,
+                                        price:price,
+                                        Maintenance_Interval:Maintenance_Interval,
+                                        remark:remark
+                                    }),
+                            })
+                                
+                        }
+                        await loadTable(apiUrlDeviveRecord,container1);
+                        break;
+
+                        case "maintenance": // 新增維護紀錄
+                        const deviceID = document.getElementById("dname").value.trim();
+                        const vendorID = document.getElementById("vname").value.trim();
+                        const item = document.getElementById("item").value.trim();
+                        const cost = document.getElementById("cost").value.trim();
+                        const remark1 = document.getElementById("remark1").value.trim();
+
+                        if(!deviceID){
+                            alert("請選擇設備");
+                            return;
+                        }
+                        else if(!vendorID){
+                            alert("請選擇維護人員");
+                            return;
+                        }
+                        else if(!item){
+                            alert("請輸入維護項目");
+                            return;
+                        }
+                        else if(!cost){
+                            alert("請輸入金額");
+                            return;
+                        }else{
+                            fetch(apiUrlInsert,{
+                                method:'POST',
+                                mode:'cors',
+                                    body:JSON.stringify({
+                                        table:"maintenance",
+                                        deviceID:deviceID,
+                                        vendorID:vendorID,
+                                        item:item,
+                                        cost:cost,
+                                        remark:remark1
+                                    }),
+                            })
+                                
+                        }
+                        await loadTable(apiUrlMaintenancerecord,container2);
+                    
+                        case "vendor": // 新增維護人員
+                        const vendorName = document.getElementById("vendorName").value.trim();
+                        const maintainer = document.getElementById("maintainer").value.trim();
+                        const phone = document.getElementById("phone").value.trim();
+                        const email = document.getElementById("email").value.trim();
+                        const address = document.getElementById("address").value.trim();
+                        const service = document.getElementById("service").value.trim();
+                        const contractStart = document.getElementById("contractStart").value;
+                        const contractEnd = document.getElementById("contractEnd").value;
+
+                        if(!vendorName){
+                            alert("請輸入廠商名稱");
+                            return;
+                        }else if(!maintainer){
+                            alert("請輸入維護人員");
+                            return;
+                        }else if(!service){
+                            alert("請輸入服務項目");
+                            return;
+                        }else{
+                            fetch(apiUrlInsert,{
+                                method:'POST',
+                                mode:'cors',
+                                    body:JSON.stringify({
+                                        table:"vendor",
+                                        vendorName:vendorName,
+                                        maintainer:maintainer,
+                                        phone:phone,
+                                        email:email,
+                                        address:address,
+                                        service:service,
+                                        contractStart:contractStart,
+                                        contractEnd:contractEnd
+                                    }),
+                            })
+                                
+                        }
+                        await loadTable(apiUrlVendorRecord,container3);
+                        break;
+                    }
+                    Array.from(document.getElementsByTagName('input')).forEach(input => {
+                        input.value = '';
+                    })
+                }
+                
+                // 展開收合
+                function showBox(id){
+                    let box = document.getElementById(id);
+                    let hide = document.getElementsByClassName('hide');
+                    (box.classList.contains('hide') ) 
+                    ? box.classList.remove('hide') : box.classList.add('hide');
+                    switch(id){
+                        case "device":
+                        loadTable(apiUrlDeviveRecord,container1);
+                        break;
+                        case "maintenance":
+                        loadTable(apiUrlMaintenancerecord,container2);
+                        selectAdd('dname',apiUrlDeviveRecord);
+                        selectAdd('vname',apiUrlVendorRecord);
+                        break;
+                        case "vendor":
+                        loadTable(apiUrlVendorRecord,container3);
+                        break;
+                    
+                        
+                    }
+                      
+                    
+                }
+
+                // 金額格式化
+                Array.from(document.getElementsByClassName("money")).forEach(input => {
+                    input.addEventListener('input', function (e)  {
+                        let value = e.target.value;
+                        if(value.includes('.')){
+                            let [integer,decimal] = value.split('.');
+                            if(decimal.length>2){
+                                decimal = decimal.slice(0,2);
+                                e.target.value = integer+'.'+decimal;
+                            }
+                            e.target.value = integer+'.'+decimal;
+                        } 
+                    });
+                });
+
+                
+                
+
+
+            </script>
+    </body>
+</html>

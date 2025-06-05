@@ -1,0 +1,30 @@
+.ticket {
+    display: inline-block;
+    width: 30px;
+    margin-left: 5px;
+}
+.hide {
+    display: none;
+}
+/* 隱藏箭頭 */
+input[type="number"]::-webkit-inner-spin-button,
+input[type="number"]::-webkit-outer-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+}
+
+input[type="number"] {
+    -moz-appearance: textfield; /* Firefox */
+}
+.day{
+    width: 30px;
+}
+.remark{
+    width: 200px;
+    height: 100px;
+    margin-top: 5px;
+
+}
+input{
+    margin: 5px;
+}
